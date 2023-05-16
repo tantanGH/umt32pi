@@ -19,7 +19,7 @@ void send_exclusive_message(int16_t interface, uint8_t* sysex, size_t sysex_len)
       B_BPEEK((uint8_t*)0xe9a001);              // dummy OPM read for wait
       B_BPOKE((uint8_t*)0xeafa03, 5);           // register group 5
       B_BPEEK((uint8_t*)0xe9a001);              // wait
-      B_BPOKE((uint8_t*)0xeafa0b, sysex[i]);
+      B_BPOKE((uint8_t*)0xeafa0d, sysex[i]);
     }
 
   } else if (interface == INTERFACE_RS_MIDI) {
@@ -86,7 +86,7 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
 
   // one must be running
   if (zmusic_type < 0 && rcd_mode < 0) {
-    printf("error: ZMUSIC/RCD MIDI driver is not running.");
+    printf("error: ZMUSIC/RCD MIDI driver is not running.\n");
     rc = -1;
     goto exit;
   }
@@ -138,11 +138,11 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
       uint8_t sysex_mes[] = { 0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x01, 0x30, reberb, 15 - reberb, 0xf7 };
       send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
       printf("sent reberb type command. (%d:%s)\n", reberb,
-            reberb == 0 ? "Room 1" :
-            reberb == 1 ? "Room 2" :
-            reberb == 2 ? "Room 3" :
-            reberb == 3 ? "Hall 1" :
-            reberb == 4 ? "Hall 2 (default)" :
+            reberb == 0 ? "Room1" :
+            reberb == 1 ? "Room2" :
+            reberb == 2 ? "Room3" :
+            reberb == 3 ? "Hall1" :
+            reberb == 4 ? "Hall2 (default)" :
             reberb == 5 ? "Plate" :
             reberb == 6 ? "Delay" :
             reberb == 7 ? "Panning Delay" : "");
@@ -159,10 +159,10 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
       uint8_t sysex_mes[] = { 0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x01, 0x38, chorus, 7 - chorus, 0xf7 };
       send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
       printf("sent chorus type command. (%d:%s)\n", chorus,
-            chorus == 0 ? "Chorus 1" :
-            chorus == 1 ? "Chorus 2" :
-            chorus == 2 ? "Chorus 3 (default)" :
-            chorus == 3 ? "Chorus 4" :
+            chorus == 0 ? "Chorus1" :
+            chorus == 1 ? "Chorus2" :
+            chorus == 2 ? "Chorus3 (default)" :
+            chorus == 3 ? "Chorus4" :
             chorus == 4 ? "Feedback Chorus" :
             chorus == 5 ? "Flanger" :
             chorus == 6 ? "Short Delay" :
