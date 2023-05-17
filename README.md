@@ -28,8 +28,8 @@ UMT320x0.ZIP をダウンロードして展開し、UMT32PI.X をパスの通っ
     reverb <type>  ... [GS] reverb type (0-7, default:4)
     chorus <type>  ... [GS] chorus type (0-7, default:2)
     print <str>    ... [GS/mt32-pi] print string (max 32chars)
-    sfont <index>  ... [mt32-pi] sound font (0-127)
     synth <type>   ... [mt32-pi] 0:MT-32 1:SoundFont
+    sfont <index>  ... [mt32-pi] sound font (0-127)
     reboot         ... [mt32-pi] reboot Raspberry Pi
 
 再生中に実行した場合は音源ドライバを一時停止し、システムエクスクルーシブを送った後に自動的に再開します。
