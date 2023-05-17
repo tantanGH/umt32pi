@@ -45,7 +45,7 @@ static void show_help_message() {
   printf("    gsreset        ... [GS] reset\n");
   printf("    reverb <type>  ... [GS] reverb type (0-7)\n");
   printf("    chorus <type>  ... [GS] chorus type (0-7)\n");
-  printf("    print <str>    ... [GS] print string (max 32chars)\n");
+  printf("    print <str>    ... [GS/mt32-pi] print string (max 32chars)\n");
   printf("    sfont <index>  ... [mt32-pi] sound font (0-127)\n");
   printf("    reboot         ... [mt32-pi] reboot Raspberry Pi\n");
 }
