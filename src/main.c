@@ -46,6 +46,7 @@ static void show_help_message() {
   printf("    reverb <type>  ... [GS] reverb type (0-7)\n");
   printf("    chorus <type>  ... [GS] chorus type (0-7)\n");
   printf("    print <str>    ... [GS/mt32-pi] print string (max 32chars)\n");
+  printf("    synth <n>      ... [mt32-pi] 0:MT-32 1:SoundFont\n");
   printf("    sfont <index>  ... [mt32-pi] sound font (0-127)\n");
   printf("    reboot         ... [mt32-pi] reboot Raspberry Pi\n");
 }
@@ -194,6 +195,19 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
       rc = -1;
     }
   
+  } else if (stricmp(sysex_command, "synth") == 0) {
+  
+    // select synthesizer (mt32-pi)
+    int16_t synth = sysex_param != NULL ? atoi(sysex_param) : -1;
+    if (synth >= 0 && synth <= 1) {
+      uint8_t sysex_mes[] = { 0xf0, 0x7d, 0x03, synth, 0xf7 };
+      send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
+      printf("sent synth select command. (%d)\n", synth);
+    } else {
+      printf("error: synth must be 0(MT-32) or 1(SoundFont).\n");
+      rc = -1;
+    }
+
   } else if (stricmp(sysex_command, "sfont") == 0) {
   
     // select sound font (mt32-pi)
