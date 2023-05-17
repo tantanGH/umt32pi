@@ -27,7 +27,7 @@ UMT320x0.ZIP をダウンロードして展開し、UMT32PI.X をパスの通っ
     gsreset        ... [GS] reset
     reverb <type>  ... [GS] reverb type (0-7, default:4)
     chorus <type>  ... [GS] chorus type (0-7, default:2)
-    print <str>    ... [GS] print string (max 32chars)
+    print <str>    ... [GS/mt32-pi] print string (max 32chars)
     sfont <index>  ... [mt32-pi] sound font (0-127)
     reboot         ... [mt32-pi] reboot Raspberry Pi
 
