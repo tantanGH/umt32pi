@@ -6,7 +6,7 @@ mt32-pi および GS MIDI音源の基本的な制御を行うユーティリテ�
 
 ## Install
 
-UMT320x0.ZIP をダウンロードして展開し、UMT32PI.X をパスの通ったところに置きます。
+UMT32xxx.ZIP をダウンロードして展開し、UMT32PI.X をパスの通ったところに置きます。
 
 ---
 
@@ -23,22 +23,23 @@ UMT320x0.ZIP をダウンロードして展開し、UMT32PI.X をパスの通っ
 
 現在サポートしているコマンドは以下です。
 
-    volume <vol>   ... [GS] master volume (0-127)
+    gsvol <vol>    ... [GS] master volume (0-127)
     gsreset        ... [GS] reset
     reverb <type>  ... [GS] reverb type (0-7, default:4)
     chorus <type>  ... [GS] chorus type (0-7, default:2)
     print <str>    ... [GS/mt32-pi] print string (max 32chars)
+    mtvol <vol>    ... [mt32-pi] master volume (0-100)
     synth <type>   ... [mt32-pi] 0:MT-32 1:SoundFont
     sfont <index>  ... [mt32-pi] sound font (0-127)
     reboot         ... [mt32-pi] reboot Raspberry Pi
 
 再生中に実行した場合は音源ドライバを一時停止し、システムエクスクルーシブを送った後に自動的に再開します。
 
-実行例: マスターボリュームの変更
+実行例: GSマスターボリュームの変更
 
-    umt32pi volume 100
+    umt32pi gsvol 100
 
-実行例: リバーブタイプの変更
+実行例: GSリバーブタイプの変更
 
     umt32pi reverb 0
 
@@ -52,17 +53,15 @@ UMT320x0.ZIP をダウンロードして展開し、UMT32PI.X をパスの通っ
 
 再生中に実行した場合は想定外の音が出る可能性があります。
 
-mt32-pi では volume, reverb, chorus コマンドは無視されます。GS音源実機での使用を想定しています。
+mt32-pi では reverb, chorus コマンドは無視されます。GS音源実機での使用を想定しています。
 
 RCD v2 及び ZMUSIC v3 は環境が無いため未確認・未対応です。RCD v3 と ZMUSIC v2 のみ確認しています。
-
-当方X680x0実機用のMIDIボードを所有していないので、MIDIボードモードでの動作については未確認です。
-動作した場合はお知らせ頂けると助かります。なお、MIDIボードは1枚目のみを想定しています。
 
 ---
 
 ## 変更履歴
 
+* 0.3.0 (2025/02/11) ... mt32-pi のマスターボリューム変更に対応
 * 0.2.1 (2023/05/17) ... mt32-pi の対応エクスクルーシブ追加
 * 0.2.0 (2023/05/17) ... 初版 (Cで書き直して音源ドライバ制御を追加)
 * 0.1.0 (2023/05/16) ... プロトタイプ (MicroPython-x68k版)
