@@ -201,7 +201,6 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
     // master volume (mt32-pi)
     int16_t volume = sysex_param != NULL ? atoi(sysex_param) : -1;
     if (volume >= 0 && volume <= 100) {
-      //F0 41 10 16 12 00 00 04 00 3C F7
       uint8_t sysex_mes[] = { 0xf0, 0x41, 0x10, 0x16, 0x12, 0x10, 0x00, 0x16, volume, (0x10 + 0x16 + volume) > 0x80 ? 0x100 - (0x10 + 0x16 + volume) : 0x80 - (0x10 + 0x16 + volume), 0xf7 };
       send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
       printf("sent master volume command. (%d)\n", volume);
