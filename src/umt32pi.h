@@ -1,6 +1,6 @@
 #ifndef __H_UMT32PI__
 
-#define PROGRAM_VERSION  "0.2.1 (2023/05/17)"
+#define PROGRAM_VERSION  "0.3.0 (2025/02/11)"
 
 #define INTERFACE_MIDI_BOARD    (0)
 #define INTERFACE_RS_MIDI       (1)
