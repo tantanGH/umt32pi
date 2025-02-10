@@ -41,11 +41,12 @@ void send_exclusive_message(int16_t interface, uint8_t* sysex, size_t sysex_len)
 static void show_help_message() {
   printf("usage: umt32pi <command> [parameter...]\n");
   printf("command:\n");
-  printf("    volume <vol>   ... [GS] master volume (0-127)\n");
+  printf("    gsvol <vol>    ... [GS] master volume (0-127)\n");
   printf("    gsreset        ... [GS] reset\n");
   printf("    reverb <type>  ... [GS] reverb type (0-7)\n");
   printf("    chorus <type>  ... [GS] chorus type (0-7)\n");
   printf("    print <str>    ... [GS/mt32-pi] print string (max 32chars)\n");
+  printf("    mtvol <vol>    ... [mt32-pi] master volume (0-100)\n");
   printf("    synth <n>      ... [mt32-pi] 0:MT-32 1:SoundFont\n");
   printf("    sfont <index>  ... [mt32-pi] sound font (0-127)\n");
   printf("    reboot         ... [mt32-pi] reboot Raspberry Pi\n");
@@ -111,14 +112,14 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
   uint8_t* sysex_param = argc > 2 ? argv[2] : NULL;
   uint8_t* sysex_param2 = argc > 3 ? argv[3] : NULL;
 
-  if (stricmp(sysex_command, "volume") == 0) {
+  if (stricmp(sysex_command, "gsvol") == 0) {
 
     // master volume (GM/GS)
     int16_t volume = sysex_param != NULL ? atoi(sysex_param) : -1;
     if (volume >= 0 && volume <= 127) {
       uint8_t sysex_mes[] = { 0xf0, 0x7f, 0x7f, 0x04, 0x01, 0x00, volume, 0xf7 };
       send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
-      printf("sent master volume command. (%d)\n", volume);
+      printf("sent GS master volume command. (%d)\n", volume);
     } else {
       printf("error: volume must be 0 - 127.\n");
       rc = -1;
@@ -195,6 +196,20 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
       rc = -1;
     }
   
+  } else if (stricmp(sysex_command, "mtvol") == 0) {
+
+    // master volume (mt32-pi)
+    int16_t volume = sysex_param != NULL ? atoi(sysex_param) : -1;
+    if (volume >= 0 && volume <= 100) {
+      //F0 41 10 16 12 00 00 04 00 3C F7
+      uint8_t sysex_mes[] = { 0xf0, 0x41, 0x10, 0x16, 0x12, 0x10, 0x00, 0x16, volume, (0x10 + 0x16 + volume) > 0x80 ? 0x100 - (0x10 + 0x16 + volume) : 0x80 - (0x10 + 0x16 + volume), 0xf7 };
+      send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
+      printf("sent master volume command. (%d)\n", volume);
+    } else {
+      printf("error: volume must be 0 - 100.\n");
+      rc = -1;
+    }
+
   } else if (stricmp(sysex_command, "synth") == 0) {
   
     // select synthesizer (mt32-pi)
