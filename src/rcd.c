@@ -99,8 +99,8 @@ int32_t rcd_keepchk() {
     uint32_t eye_catch_addr = INTVCG(check_vectors[i]) - 8;
 
     uint8_t eye_catch[6];
-    for (int16_t i = 0; i < 6; i++) {
-      eye_catch[i] = B_BPEEK((uint8_t*)(eye_catch_addr + i));
+    for (int16_t j = 0; j < 6; j++) {
+      eye_catch[j] = B_BPEEK((uint8_t*)(eye_catch_addr + j));
     }
 
     if (memcmp(eye_catch, "RCD 3.", 6) == 0) {
