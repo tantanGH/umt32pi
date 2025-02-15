@@ -41,15 +41,17 @@ void send_exclusive_message(int16_t interface, uint8_t* sysex, size_t sysex_len)
 static void show_help_message() {
   printf("usage: umt32pi <command> [parameter...]\n");
   printf("command:\n");
+  printf("    mtvol <vol>    ... [mt32-pi] master volume (0-100)\n");
+  printf("    synth <n>      ... [mt32-pi] 0:MT-32 1:SoundFont\n");
+  printf("    sfont <index>  ... [mt32-pi] sound font (0-127)\n");
+  printf("    reboot         ... [mt32-pi] reboot Raspberry Pi\n");
+  printf("    mute <mode>    ... [mt32-pi-ex] mute mode(0) or play mode (1)\n");
   printf("    gsvol <vol>    ... [GS] master volume (0-127)\n");
   printf("    gsreset        ... [GS] reset\n");
   printf("    reverb <type>  ... [GS] reverb type (0-7)\n");
   printf("    chorus <type>  ... [GS] chorus type (0-7)\n");
   printf("    print <str>    ... [GS] print string (max 32chars)\n");
-  printf("    mtvol <vol>    ... [mt32-pi] master volume (0-100)\n");
-  printf("    synth <n>      ... [mt32-pi] 0:MT-32 1:SoundFont\n");
-  printf("    sfont <index>  ... [mt32-pi] sound font (0-127)\n");
-  printf("    reboot         ... [mt32-pi] reboot Raspberry Pi\n");
+//  printf("    gmvol <vol>    ... [GM] master volume (0-127)\n");        // kakushi command
 }
 
 //
@@ -59,6 +61,12 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
 
   // default exit code
   int32_t rc = 0;
+
+  // default driver
+  int16_t driver_type = DRIVER_NONE;
+
+  // default interface
+  int16_t midi_if = INTERFACE_NONE;
 
   // credit
   printf("UMT32PI.X - A simple mt32-pi and GS MIDI control utility version " PROGRAM_VERSION " tantan\n");
@@ -73,21 +81,29 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
   // zmusic check
   int32_t zmusic_type = zmusic_keepchk();
   if (zmusic_type == 2) {
+    driver_type = DRIVER_ZMUSIC;
+    midi_if = INTERFACE_RS_MIDI;
     printf("MIDI driver: ZMUSIC RS-MIDI\n");
   } else if (zmusic_type >= 0) {
+    driver_type = DRIVER_ZMUSIC;
+    midi_if = INTERFACE_MIDI_BOARD;
     printf("MIDI driver: ZMUSIC\n");
   }
 
   // rcd check
-  int32_t rcd_mode = rcd_keepchk();
-  if (rcd_mode == 1) {
+  int32_t rcd_type = rcd_keepchk();
+  if (rcd_type == 1) {
+    driver_type = DRIVER_RCD;
+    midi_if = INTERFACE_RS_MIDI;
     printf("MIDI driver: RCD RS-MIDI\n");
-  } else if (rcd_mode == 0) {
+  } else if (rcd_type == 0) {
+    driver_type = DRIVER_RCD;
+    midi_if = INTERFACE_MIDI_BOARD;
     printf("MIDI driver: RCD\n");
   }
 
   // one must be running
-  if (zmusic_type < 0 && rcd_mode < 0) {
+  if (driver_type == DRIVER_NONE) {
     printf("error: ZMUSIC/RCD MIDI driver is not running.\n");
     rc = -1;
     goto exit;
@@ -95,29 +111,38 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
 
   // pause
   int16_t paused = 0;
-  if (zmusic_type >= 0 && zmusic_status() != 0) {
+  if (driver_type == DRIVER_ZMUSIC && zmusic_status() != 0) {
     zmusic_pause();
     paused = 1;
   }
-  if (rcd_mode >= 0 && rcd_status() != 0) {
+  if (driver_type == DRIVER_RCD && rcd_status() != 0) {
     rcd_pause();
-    paused = 2;
+    paused = 1;
   }
-
-  // midi interface
-  int16_t midi_if = (zmusic_type == 2 || rcd_mode == 1) ? INTERFACE_RS_MIDI : INTERFACE_MIDI_BOARD;
 
   // sysex command and parameters
   uint8_t* sysex_command = argv[1];
   uint8_t* sysex_param = argc > 2 ? argv[2] : NULL;
   uint8_t* sysex_param2 = argc > 3 ? argv[3] : NULL;
 
-  if (stricmp(sysex_command, "gsvol") == 0) {
+  if (stricmp(sysex_command, "gmvol") == 0) {
 
     // master volume (GS)
     int16_t volume = sysex_param != NULL ? atoi(sysex_param) : -1;
     if (volume >= 0 && volume <= 127) {
-      //uint8_t sysex_mes[] = { 0xf0, 0x7f, 0x7f, 0x04, 0x01, 0x00, volume, 0xf7 }; // GM master volume sysex
+      uint8_t sysex_mes[] = { 0xf0, 0x7f, 0x7f, 0x04, 0x01, 0x00, volume, 0xf7 }; // GM master volume sysex
+      send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
+      printf("sent GS master volume command. (%d)\n", volume);
+    } else {
+      printf("error: volume must be 0 - 127.\n");
+      rc = -1;
+    }
+
+  } else if (stricmp(sysex_command, "gsvol") == 0) {
+
+    // master volume (GS)
+    int16_t volume = sysex_param != NULL ? atoi(sysex_param) : -1;
+    if (volume >= 0 && volume <= 127) {
       uint8_t sysex_mes[] = { 0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x04, volume, (0x40 + 0x04 + volume) > 0x80 ? 0x100 - (0x40 + 0x04 + volume) : 0x80 - (0x40 + 0x04 + volume), 0xf7 };
       send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
       printf("sent GS master volume command. (%d)\n", volume);
@@ -242,6 +267,19 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
     uint8_t sysex_mes[] = { 0xf0, 0x7d, 0x00, 0xf7 };
     send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
 
+  } else if (stricmp(sysex_command, "mute") == 0) {
+  
+    // mute (mt32-pi-ex)
+    int16_t mute_mode = sysex_param != NULL ? atoi(sysex_param) : -1;
+    if (mute_mode >= 0 && mute_mode <= 1) {
+      uint8_t sysex_mes[] = { 0xf0, 0x7d, 0x10, mute_mode, 0xf7 };
+      send_exclusive_message(midi_if, sysex_mes, sizeof(sysex_mes));
+      printf("sent mute command. (%d)\n", mute_mode);
+    } else {
+      printf("error: mute mode must be 0 or 1.\n");
+      rc = -1;
+    }
+
   } else {
 
     // unknown
@@ -253,9 +291,11 @@ int32_t main(int32_t argc, uint8_t* argv[]) {
 
   // resume
   if (paused == 1) {
-    zmusic_resume();
-  } else if (paused == 2) {
-    rcd_resume();
+    if (driver_type == DRIVER_ZMUSIC) {
+      zmusic_resume();
+    } else if (driver_type == DRIVER_RCD) {
+      rcd_resume();
+    }
   }
 
 exit:
